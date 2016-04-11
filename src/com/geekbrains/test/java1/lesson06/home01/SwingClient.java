@@ -15,17 +15,6 @@ import java.util.Scanner;
 public class SwingClient extends JFrame {
 
     public SwingClient() throws IOException {
-        System.out.println("Welcome to Client side");
-
-        System.out.println("Connecting to... " + "localhost");
-        Socket fromserver = new Socket("localhost", 3000);
-
-        Scanner in = new Scanner(fromserver.getInputStream());
-        PrintWriter out = new PrintWriter(fromserver.getOutputStream(), true);
-        Scanner inu = new Scanner(System.in);
-
-        String fuser, fserver;
-
         setTitle("Client chat");
         setSize(400, 400);
         setLocation(1200, 200);
@@ -40,29 +29,24 @@ public class SwingClient extends JFrame {
         JTextField jtf = new JTextField();
         southPanel.add(jb, BorderLayout.EAST);
         southPanel.add(jtf, BorderLayout.CENTER);
-        jta.setFont(new Font("Times New Roman", Font.ITALIC, 24));
+        jta.setEnabled(false);
+        jta.setDisabledTextColor(Color.BLACK);
+        jta.setFont(new Font("Courier", Font.ITALIC, 10));
+
+        SwingClientHandler clientHandler = new SwingClientHandler("localhost", 3000, jta);
+        new Thread(clientHandler).start();
+
         jb.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String text = jtf.getText();
-                //jta.append(text + '\n');
-                out.println(text);
+                clientHandler.send(text);
                 jtf.setText("");
             }
         });
+
+
         setVisible(true);
-
-        while ((fuser = in.nextLine()) != null) {
-            jta.append(fuser + '\n');
-            if (fuser.equalsIgnoreCase("close") || fuser.equalsIgnoreCase("exit")) {
-                break;
-            }
-        }
-
-        out.close();
-        in.close();
-        inu.close();
-        fromserver.close();
     }
 
 

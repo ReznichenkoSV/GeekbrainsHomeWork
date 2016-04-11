@@ -19,32 +19,13 @@ public class SocketServer implements Runnable {
     public void run() {
         try {
             System.out.println("Welcome to Server side");
-            Scanner in = null;
-            PrintWriter out = null;
 
             ServerSocket servers = new ServerSocket(3000);
-            // create server socket
-            System.out.print("Waiting for a client...");
-            Socket fromclient = servers.accept();
-            countClient++;
-            System.out.println("Client connected");
+            while (true) {
+                Socket fromclient = servers.accept();
 
-            in = new Scanner(fromclient.getInputStream());
-            out = new PrintWriter(fromclient.getOutputStream(), true);
-
-            String input, output;
-
-            System.out.println("Wait for messages");
-            while ((input = in.nextLine()) != null) {
-                if (input.equalsIgnoreCase("exit")) break;
-                out.println(String.format("Client#%d: %s", countClient, input));
-                System.out.println(input);
+                new Thread(new ClientHandler(fromclient)).start();
             }
-
-            out.close();
-            in.close();
-            fromclient.close();
-            servers.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
